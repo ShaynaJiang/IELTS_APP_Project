@@ -1,0 +1,91 @@
+<!-- activity_main.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="login.login">
+
+    <!-- LOG IN 文字樣 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="342dp"
+        android:background="@color/red">
+
+        <TextView
+            android:id="@+id/registText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="200dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:text="Register"
+            android:textColor="@color/white"
+            android:textSize="50sp">
+
+        </TextView>
+
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="332dp"
+        android:layout_height="352dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="290dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="70dp"
+        android:layout_gravity="center"
+        android:background="@color/grey">
+
+        <EditText
+            android:id="@+id/registEmail"
+            android:layout_width="300dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="88dp"
+            android:hint="請輸入電子信箱"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textMail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="56dp"
+            android:text="Email"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/registPass"
+            android:layout_width="300dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="60dp"
+            android:hint="請輸入密碼"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registEmail" />
+
+        <TextView
+            android:id="@+id/textPass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="92dp"
+            android:text="Password"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textMail" />
+
+        <Button
+            android:id="@+id/registButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="112dp"
+            android:layout_marginTop="36dp"
+            android:text="Send"
+            android:backgroundTint="@color/red"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registPass" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
