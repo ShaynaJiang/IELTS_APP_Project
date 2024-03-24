@@ -336,7 +336,7 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
             @Override
             public void run() {
                 try {
-                    Response<List<WordResult2>> response = RetrofitInstance.getInstance()
+                    Response<List<WordResult>> response = RetrofitInstance.getInstance()
                             .create(DictionaryApi.class)
                             .getMeaning(word)
                             .execute();
@@ -347,7 +347,7 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            List<WordResult2> results = response.body();
+                            List<WordResult> results = response.body();
                             if (results != null && !results.isEmpty()) {
                                 setUI(results.get(0));
                             }
@@ -364,7 +364,7 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
             }
         }).start();
     }
-    private void setUI(WordResult2 response) {
+    private void setUI(WordResult response) {
         binding.wordTextview.setText(response.getWord());
         binding.phoneticTextview.setText(response.getPhonetic());
         MeaningAdapter.updateNewData(response.getMeanings());

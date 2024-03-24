@@ -3,7 +3,7 @@ package com.example.gproject.adapter;
 public class WordListData {
     String word, phonetic;
     private boolean isExpanded;
-//    private ItemClickListener itemClickListener;
+
     public WordListData(String word, String phonetic) {
         this.word = word;
         this.phonetic = phonetic;

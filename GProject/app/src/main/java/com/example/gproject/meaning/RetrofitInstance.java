@@ -13,7 +13,6 @@ public class RetrofitInstance {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
-
     public static final DictionaryApi dictionaryApi = getInstance().create(DictionaryApi.class);
     public static final DictionaryApi dictionaryApi2 = getInstance().create(DictionaryApi.class);
 }

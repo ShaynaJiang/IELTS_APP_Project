@@ -1,13 +1,6 @@
 package com.example.gproject.meaning;
 
-import android.view.View;
-import android.widget.Toast;
-
-import com.example.gproject.WordCard.WordResult2;
 import android.os.Handler;
-import java.util.List;
-import com.example.gproject.databinding.WordDicSearchBinding;
-import retrofit2.Response;
 
 public class DataHolder {
     String definitions, SpeechText;
@@ -18,7 +11,6 @@ public class DataHolder {
         this.handler = handler;
     }
 
-
     //DataBase
     public DataHolder(String definitions, String SpeechText, int cont) {
         this.definitions = definitions;
@@ -26,7 +18,6 @@ public class DataHolder {
         this.cont = cont;
 
     }
-
     public int getCont() {
         return cont;
     }
@@ -34,7 +25,6 @@ public class DataHolder {
     public void setCont(int cont) {
         this.cont = cont;
     }
-
     public String getDefinitions() {
         return definitions;
     }

@@ -28,19 +28,18 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.ViewHo
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        // 使用你的布局文件
         View itemView = inflater.inflate(R.layout.word_card, parent, false);
 
-        // 返回 ViewHolder
+        // back to ViewHolder
         return new ViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // 获取数据模型
+        // get DataModel
         WordListData data = dataList.get(position);
 
-        // 设置数据到 ViewHolder 中
+        // set Data into ViewHolder
         holder.wordTextView.setText(data.getWord());
         holder.phoneticTextView.setText(data.getPhonetic());
     }

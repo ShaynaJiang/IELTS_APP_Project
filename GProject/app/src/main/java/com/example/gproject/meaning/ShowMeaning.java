@@ -11,7 +11,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.gproject.WordCard.WordResult2;
+import com.example.gproject.WordCard.WordResult;
+import com.example.gproject.adapter.WordListData;
 import com.example.gproject.databinding.WordDicSearchBinding;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,14 +26,18 @@ import retrofit2.Response;
 import com.example.gproject.reading.R_topic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class ShowMeaning extends AppCompatActivity {
     private String currentWord, definitions;
     private final AtomicBoolean isStarred = new AtomicBoolean(false);
     private WordDicSearchBinding binding;
     private MeaningAdapter adapter;
+    int is = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,53 +49,47 @@ public class ShowMeaning extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(ShowMeaning.this, R_topic.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
             }
         });
-        //Search
+        //Search Word
         binding.searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 currentWord = binding.searchInput.getText().toString();
-
+                isWordCollected(currentWord);
                 getMeaning(currentWord);
             }
         });
-
-        // Collect
+        // click starButton to change collect state
         binding.starButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (isStarred.get()) {
-                    // 如果已经收藏，点击后取消收藏
+                if (isWordCollected(currentWord) == 1) {
+                    // If ir has already been collected it, click to cancel it.
                     deleteCollectData();
-                    // 设置为默认状态的背景
                     binding.starButton.setImageResource(R.drawable.ic_star_default);
-                    // 更新状态
-                    isStarred.set(false);
-                    Log.e("collect", "Failed with error: ");
-                    Toast.makeText(getApplicationContext(), "Removed from collection", Toast.LENGTH_LONG).show();
+
+                    Log.e("collect", "delete： " + is);
                 } else {
-                        // 如果未收藏，点击后收藏
-                        insertCollectData();
-                        // 设置为按下状态的背景
-                        binding.starButton.setImageResource(R.drawable.ic_star_pressed);
-                        // 更新状态
-                        isStarred.set(true);
-                    Toast.makeText(getApplicationContext(), "Added to collection", Toast.LENGTH_LONG).show();
+                    // If it hasn't been collected, click to collect it.
+                    insertCollectData();
+                    binding.starButton.setImageResource(R.drawable.ic_star_pressed);
+
+                    Log.e("collect", "collect：" + is);
                 }
             }
         });
+
         adapter = new MeaningAdapter(emptyList());
         binding.meaningRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.meaningRecyclerView.setAdapter(adapter);
     }
 
+    //Insert Collect Word
     public void insertCollectData() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference root = db.getReference("word_collect");
@@ -109,11 +108,11 @@ public class ShowMeaning extends AppCompatActivity {
             Log.e("collect", "Added to collection " + userId + 1);
 
         } else {
-            // Handle the case where the user is not authenticated
             Log.e("collect", "User not authenticated");
         }
     }
 
+    //Delete Collect Word
     public void deleteCollectData() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference root = db.getReference("word_collect");
@@ -132,7 +131,6 @@ public class ShowMeaning extends AppCompatActivity {
             Log.e("collect", "Added to collection " + userId + 2);
 
         } else {
-            // Handle the case where the user is not authenticated
             Log.e("collect", "User not authenticated");
         }
     }
@@ -143,7 +141,7 @@ public class ShowMeaning extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Response<List<WordResult2>> response = RetrofitInstance.getInstance()
+                    Response<List<WordResult>> response = RetrofitInstance.getInstance()
                             .create(DictionaryApi.class)
                             .getMeaning(word)
                             .execute();
@@ -155,7 +153,7 @@ public class ShowMeaning extends AppCompatActivity {
                         @Override
                         public void run() {
                             setInProgress(false);
-                            List<WordResult2> results = response.body();
+                            List<WordResult> results = response.body();
                             if (results != null && !results.isEmpty()) {
                                 setUI(results.get(0));
                             }
@@ -173,13 +171,11 @@ public class ShowMeaning extends AppCompatActivity {
             }
         }).start();
     }
-
-    private void setUI(WordResult2 response) {
+    private void setUI(WordResult response) {
         binding.wordTextview.setText(response.getWord());
         binding.phoneticTextview.setText(response.getPhonetic());
         adapter.updateNewData(response.getMeanings());
     }
-
     private void setInProgress(boolean inProgress) {
         if (inProgress) {
             binding.searchBtn.setVisibility(View.INVISIBLE);
@@ -188,5 +184,38 @@ public class ShowMeaning extends AppCompatActivity {
             binding.searchBtn.setVisibility(View.VISIBLE);
             binding.progressBar.setVisibility(View.INVISIBLE);
         }
+    }
+
+    //Determine whether it is collected in Database
+    private int isWordCollected(final String word) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference root = db.getReference("word_collect");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userID = user.getUid();
+        root.child(userID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    boolean isCollected = dataSnapshot.hasChild(word);
+                    if (isCollected) {
+                        binding.starButton.setImageResource(R.drawable.ic_star_pressed);
+                        is = 1;
+                        Log.d("FirebaseData", "Word '" + word + is);
+                    } else {
+                        binding.starButton.setImageResource(R.drawable.ic_star_default);
+                        Log.d("FirebaseData", "Word '" + word + is);
+                        is = 0;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("WordListActivity", "Failed with error: " + e.getMessage());
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("Read data error: " + databaseError.getMessage());
+            }
+        });
+        return is;
     }
 }

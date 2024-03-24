@@ -1,15 +1,13 @@
 package com.example.gproject.WordCard;
 
-import com.example.gproject.WordCard.Meaning;
-
 import java.util.List;
 
-public class WordResult2 {
+public class WordResult {
     private String word;
     private String phonetic;
     private List<Meaning> meanings;
 
-    public WordResult2(String word, String phonetic, List<Meaning> meanings) {
+    public WordResult(String word, String phonetic, List<Meaning> meanings) {
         this.word = word;
         this.phonetic = phonetic;
         this.meanings = meanings;
