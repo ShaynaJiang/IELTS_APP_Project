@@ -23,6 +23,7 @@ public class login extends AppCompatActivity {
     private EditText emailEditText, passwordEditText;
     private Button loginButton;
     private FirebaseAuth mAuth;
+    private EditText usernameEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,16 @@ public class login extends AppCompatActivity {
         emailEditText = findViewById(R.id.inputEmail);
         passwordEditText = findViewById(R.id.inputPass);
         loginButton = findViewById(R.id.loginButton);
+        usernameEditText = findViewById(R.id.inputEmail);
+        passwordEditText = findViewById(R.id.inputPass);
+        loginButton = findViewById(R.id.loginButton);
+
+        // 检查是否有保存的账号信息，如果有则自动填充到输入框中
+        if (RememberMeManager.hasSavedCredentials(this)) {
+            String[] credentials = RememberMeManager.getSavedCredentials(this);
+            usernameEditText.setText(credentials[0]);
+            passwordEditText.setText(credentials[1]);
+        }
 
         // 設置按鈕點擊監聽器
         loginButton.setOnClickListener(new View.OnClickListener() {

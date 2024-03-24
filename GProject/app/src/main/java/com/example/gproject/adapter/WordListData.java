@@ -1,10 +1,10 @@
 package com.example.gproject.adapter;
 
-public class CardData {
+public class WordListData {
     String word, phonetic;
     private boolean isExpanded;
 //    private ItemClickListener itemClickListener;
-    public CardData(String word, String phonetic) {
+    public WordListData(String word, String phonetic) {
         this.word = word;
         this.phonetic = phonetic;
 

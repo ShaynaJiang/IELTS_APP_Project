@@ -1,30 +1,111 @@
 package com.example.gproject.WordCard;
 
-import android.animation.Animator;
+import static java.util.Collections.emptyList;
+
+import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewAnimationUtils;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.gproject.R;
+import com.example.gproject.WordListActivity;
+import com.example.gproject.adapter.WordListAdapter;
+import com.example.gproject.adapter.WordListData;
+import com.example.gproject.meaning.DictionaryApi;
+import com.example.gproject.meaning.MeaningAdapter;
+import com.example.gproject.meaning.RetrofitInstance;
+import com.example.gproject.databinding.AddCardActivityBinding;
+import com.example.gproject.reading.R_topic;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-public class WordCardActivity extends AppCompatActivity {
-    private TextView flashcardQuestion;
+import retrofit2.Response;
+
+public class WordCardActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
     private GestureDetector gestureDetector;
+    private MeaningAdapter MeaningAdapter;
+    private AddCardActivityBinding binding;
+    private int currentPos = 0;
+    private List<WordListData> dataList;
+    private TextToSpeech textToSpeech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_card_activity);
+        binding = AddCardActivityBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        TextView flashcardQuestion = ((TextView) findViewById(R.id.flashcard_word));
-        TextView flashcardHint = ((TextView) findViewById(R.id.flashcard_hint));
-        // 设置手势识别器
+        CardView flashcardQuestion = findViewById(R.id.flashcard_cardview);
+        RecyclerView flashcardHint = findViewById(R.id.card_recycler_view);
+
+        // 初始化 dataList
+        dataList = new ArrayList<>();
+        setCollectWordData();
+
+        // 初始化 TextToSpeech
+        textToSpeech = new TextToSpeech(this, this);
+        //soundButton
+        ImageButton sound = findViewById(R.id.sound);
+        sound.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (textToSpeech != null) {
+                    String wordText = binding.wordTextview.getText().toString();
+                    // 使用 TextToSpeech 朗读文字
+                    textToSpeech.speak(wordText, TextToSpeech.QUEUE_FLUSH, null, null);
+                }
+            }
+        });
+        // Gesture
         gestureDetector = new GestureDetector(this, new GestureListener());
+
+        MeaningAdapter = new MeaningAdapter(emptyList());
+        binding.cardRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.cardRecyclerView.setAdapter(MeaningAdapter);
+        //backButton
+        ImageButton backButton = findViewById(R.id.back);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在这里添加返回逻辑
+                Intent intent = new Intent(WordCardActivity.this, WordListActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        // 获取传递的数据
+        Intent intent = getIntent();
+        int position = intent.getIntExtra("position", 0);
+        // 初始化currentPos
+        currentPos = position;
+
+        String word = intent.getStringExtra("word");
+        String phonetic = intent.getStringExtra("phonetic");
+        // 更新 UI
+        TextView wordTextView = findViewById(R.id.word_textview);
+        TextView phoneticTextView = findViewById(R.id.phonetic_textview);
+        wordTextView.setText(word);
+        phoneticTextView.setText(phonetic);
 
         // 设置触摸监听器
         flashcardQuestion.setOnTouchListener(new View.OnTouchListener() {
@@ -33,13 +114,14 @@ public class WordCardActivity extends AppCompatActivity {
                 return gestureDetector.onTouchEvent(event);
             }
         });
+
         // User can tap on question to see answer
         flashcardQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 flashcardQuestion.setCameraDistance(25000);
                 flashcardHint.setCameraDistance(25000);
-
+                String wordText = binding.wordTextview.getText().toString();
                 flashcardQuestion.animate()
                         .rotationY(90)
                         .setDuration(200)
@@ -58,13 +140,16 @@ public class WordCardActivity extends AppCompatActivity {
                                     }
                                 }
                         ).start();
+                binding.sound.setVisibility(View.INVISIBLE);
+                getMeaning(wordText);
+                Log.e("card", "success to get meaning");
             }
         });
 
         // User can tap on answer to toggle back to question
-        flashcardHint.setOnClickListener(new View.OnClickListener() {
+        MeaningAdapter.setOnItemClickListener(new MeaningAdapter.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onItemClick(int position) {
                 flashcardQuestion.setCameraDistance(25000);
                 flashcardHint.setCameraDistance(25000);
 
@@ -86,10 +171,75 @@ public class WordCardActivity extends AppCompatActivity {
                                     }
                                 }
                         ).start();
+                binding.sound.setVisibility(View.VISIBLE);
             }
         });
     }
-    // 手势监听器
+    //TextToSpeech setting
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            // setting English
+            int result = textToSpeech.setLanguage(Locale.ENGLISH);
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TextToSpeech", "Language not supported");
+            }
+        } else {
+            Log.e("TextToSpeech", "Initialization failed");
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        // 释放 TextToSpeech 资源
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+        super.onDestroy();
+    }
+
+    //collect wordData from firebase
+    private void setCollectWordData() {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference root = db.getReference("word_collect");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userID = user.getUid();
+        root.child(userID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot wordSnapshot : dataSnapshot.getChildren()) {
+                    try {
+                        String word = wordSnapshot.getKey();
+                        DataSnapshot speechTextSnapshot = wordSnapshot.child("speechText");
+                        String speechText = speechTextSnapshot.getValue(String.class);
+                        WordListData cardData = new WordListData(word, speechText);
+                        dataList.add(cardData); // 将单词数据添加到适配器的数据列表中
+                        Log.d("FirebaseData", "Key: " + word + ", speechText: " + cardData);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.e("WordCardActivity", "Failed with error: " + e.getMessage());
+                    }
+                }
+                // 初始化界面显示第一个单词
+                if (!dataList.isEmpty()) {
+                    showWordData(currentPos);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("Read data error: " + databaseError.getMessage());
+            }
+        });
+    }
+    // According to index to show WordData
+    private void showWordData(int position) {
+        WordListData currentItem = dataList.get(position);
+        binding.wordTextview.setText(currentItem.getWord());
+        binding.phoneticTextview.setText(currentItem.getPhonetic());
+    }
+    // GestureListener
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
@@ -117,19 +267,67 @@ public class WordCardActivity extends AppCompatActivity {
             return false;
         }
     }
-
-    // 显示下一个 Flashcard
+    //show next Flashcard
     private void showNextFlashcard() {
-        // 添加你的逻辑代码
-        Log.e("WordCardActivity","right");
+        if (currentPos < dataList.size() - 1) {
+            currentPos++;
+            showWordData(currentPos);
+            Log.e("size", "aaa" + currentPos);
+        }
 
+        Log.e("WordCardActivity", "right" + currentPos);
+        Log.e("size2", "ccc" + currentPos);
     }
-
-    // 显示上一个 Flashcard
+    // show previous Flashcard
     private void showPreviousFlashcard() {
-        // 添加你的逻辑代码
-        Log.e("WordCardActivity","left");
+        if (currentPos > 0) {
+            currentPos--;
+            showWordData(currentPos);
+            Log.e("size3", "dddd" + dataList.size());
+
+        }
+        Log.e("WordCardActivity", "left" + currentPos);
+        Log.e("size4", "fgfff" + dataList);
+
     }
 
+    public void getMeaning(String word) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Response<List<WordResult2>> response = RetrofitInstance.getInstance()
+                            .create(DictionaryApi.class)
+                            .getMeaning(word)
+                            .execute();
+
+                    if (response.body() == null) {
+                        throw new Exception();
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            List<WordResult2> results = response.body();
+                            if (results != null && !results.isEmpty()) {
+                                setUI(results.get(0));
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+    private void setUI(WordResult2 response) {
+        binding.wordTextview.setText(response.getWord());
+        binding.phoneticTextview.setText(response.getPhonetic());
+        MeaningAdapter.updateNewData(response.getMeanings());
+    }
 }
 

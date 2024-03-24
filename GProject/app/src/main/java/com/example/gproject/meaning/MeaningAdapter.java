@@ -14,6 +14,7 @@ import java.util.List;
 public class MeaningAdapter extends RecyclerView.Adapter<MeaningAdapter.MeaningViewHolder> {
 
     private List<Meaning> meaningList;
+    private static MeaningAdapter.OnItemClickListener listener;
 
     public MeaningAdapter(List<Meaning> meaningList) {
         this.meaningList = meaningList;
@@ -26,6 +27,19 @@ public class MeaningAdapter extends RecyclerView.Adapter<MeaningAdapter.MeaningV
         public MeaningViewHolder(MeaningRecyclerRowBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+
+            // Set click listener for item view
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemClick(position);
+                        }
+                    }
+                }
+            });
 
         }
 
@@ -87,4 +101,13 @@ public class MeaningAdapter extends RecyclerView.Adapter<MeaningAdapter.MeaningV
     public int getItemCount() {
         return meaningList.size();
     }
+
+    //set clickListener
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        MeaningAdapter.listener = listener;
+    }
+
 }

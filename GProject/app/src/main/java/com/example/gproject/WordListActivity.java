@@ -11,8 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.gproject.adapter.CardAdapter;
-import com.example.gproject.adapter.CardData;
+import com.example.gproject.WordCard.WordCardActivity;
+import com.example.gproject.adapter.WordListAdapter;
+import com.example.gproject.adapter.WordListData;
 import com.example.gproject.reading.R_topic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,7 +29,7 @@ import java.util.List;
 public class WordListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private CardAdapter adapter;
+    private WordListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,18 +47,40 @@ public class WordListActivity extends AppCompatActivity {
             }
         });
 
-        //初始化 RecyclerView 和 adapter
+        // 初始化 RecyclerView
         recyclerView = findViewById(R.id.rcyQ);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
-        List<CardData> cardDataList = new ArrayList<>();
-        adapter = new CardAdapter(cardDataList);
 
+        // 实例化适配器
+        List<WordListData> wordListDataList = new ArrayList<>();
+        adapter = new WordListAdapter(wordListDataList);
+        recyclerView.setAdapter(adapter);
+
+        // 设置收集单词数据
         setCollectWordData();
+
+        adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                // 获取点击项的数据
+//                WordListData clickedItem = adapter.getItem(position);
+//                if (clickedItem != null) {
+//                    // 创建 Intent 对象
+//                    Intent intent = new Intent(WordListActivity.this, WordCardActivity.class);
+//                    intent.putExtra("word", clickedItem.getWord());
+//                    intent.putExtra("phonetic", clickedItem.getPhonetic());
+//                    startActivity(intent);
+//                }
+                // 启动 WordCardActivity 并传递点击的位置
+                Intent intent = new Intent(WordListActivity.this, WordCardActivity.class);
+                intent.putExtra("position", position);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void setCollectWordData() {
-        // 獲取 Firebase Database 的參考
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference root = db.getReference("word_collect");
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -65,36 +88,29 @@ public class WordListActivity extends AppCompatActivity {
         root.child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // 數據變化時的處理
+//                adapter.clearData(); // 清除适配器中的数据列表
                 for (DataSnapshot wordSnapshot : dataSnapshot.getChildren()) {
-                    try { // 讀取單字
+                    try {
                         String word = wordSnapshot.getKey();
                         DataSnapshot speechTextSnapshot = wordSnapshot.child("speechText");
+                        String speechText = speechTextSnapshot.getValue(String.class);
 
-                        // 检查 "speechText" 节点是否存在
                         if (speechTextSnapshot.exists()) {
-                            String speechText = wordSnapshot.child("speechText").getValue(String.class);
-
-                            CardData cardData = new CardData(word, speechText);
-                            // 将 CardData 添加到适配器的数据列表中
-                            adapter.getDataList().add(cardData);
-                            adapter.notifyDataSetChanged();
-                            Toast.makeText(WordListActivity.this, "Success", Toast.LENGTH_SHORT).show();
-
+                            WordListData cardData = new WordListData(word, speechText);
+                            adapter.getDataList().add(cardData); // 将单词数据添加到适配器的数据列表中
+                            Log.d("FirebaseData", "Key: " + word + ", speechText: " + cardData);
                         } else {
-                            Log.e("WordCardActivity", "speechTextSnapshot dosen't exists()");
+                            Log.d("FirebaseData2", "Key: " + word + ", speechText: " + speechText);
                         }
-
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Log.e("WordCardActivity", "Failed with error: " + e.getMessage());
+                        Log.e("WordListActivity", "Failed with error: " + e.getMessage());
                     }
                 }
+                adapter.notifyDataSetChanged(); // 刷新 RecyclerView
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // 讀取數據出錯時的處理
                 System.out.println("Read data error: " + databaseError.getMessage());
             }
         });

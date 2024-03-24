@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.gproject.WordCard.WordResult2;
-import com.example.gproject.databinding.TestBinding;
+import com.example.gproject.databinding.WordDicSearchBinding;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,13 +31,13 @@ import com.google.firebase.database.FirebaseDatabase;
 public class ShowMeaning extends AppCompatActivity {
     private String currentWord, definitions;
     private final AtomicBoolean isStarred = new AtomicBoolean(false);
-    private TestBinding binding;
+    private WordDicSearchBinding binding;
     private MeaningAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = TestBinding.inflate(getLayoutInflater());
+        binding = WordDicSearchBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         ImageButton backButton = findViewById(R.id.back);
@@ -143,7 +143,7 @@ public class ShowMeaning extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Response<List<WordResult2>> response = RetrofitInstance2.getInstance()
+                    Response<List<WordResult2>> response = RetrofitInstance.getInstance()
                             .create(DictionaryApi.class)
                             .getMeaning(word)
                             .execute();

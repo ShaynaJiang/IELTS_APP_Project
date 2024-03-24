@@ -1,16 +1,31 @@
 package com.example.gproject.meaning;
 
+import android.view.View;
+import android.widget.Toast;
+
+import com.example.gproject.WordCard.WordResult2;
+import android.os.Handler;
+import java.util.List;
+import com.example.gproject.databinding.WordDicSearchBinding;
+import retrofit2.Response;
+
 public class DataHolder {
     String definitions, SpeechText;
     int cont;
+    private Handler handler;
+
+    public DataHolder(Handler handler) {
+        this.handler = handler;
+    }
+
 
     //DataBase
     public DataHolder(String definitions, String SpeechText, int cont) {
         this.definitions = definitions;
         this.SpeechText = SpeechText;
         this.cont = cont;
-    }
 
+    }
 
     public int getCont() {
         return cont;

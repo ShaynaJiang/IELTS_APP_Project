@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -24,9 +27,11 @@
         <activity
             android:name=".WordQuizActivity"
             android:exported="true"/>
-        <activity android:name=".meaning.ShowMeaning"
+        <activity
+            android:name=".meaning.ShowMeaning"
             android:exported="true"/>
-        <activity android:name=".WordListActivity"
+        <activity
+            android:name=".WordListActivity"
             android:exported="true"/>
         <activity
             android:name=".reading.R_blank"
@@ -45,6 +50,9 @@
             android:exported="true"/>
         <activity
             android:name=".WordCard.WordCardActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".login.login"
             android:exported="true">
 
             <intent-filter>

@@ -6,18 +6,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gproject.R;
+import com.example.gproject.meaning.MeaningAdapter;
 
 import java.util.List;
 
-public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
+public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.ViewHolder> {
 
-    private List<CardData> dataList; // 替换 YourDataModel 为实际的数据模型
+    private List<WordListData> dataList;
+    private static WordListAdapter.OnItemClickListener listener;
 
-    public CardAdapter(List<CardData> dataList) {
+    public WordListAdapter(List<WordListData> dataList) {
         this.dataList = dataList;
     }
 
@@ -37,26 +38,11 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // 获取数据模型
-        CardData data = dataList.get(position);
+        WordListData data = dataList.get(position);
 
         // 设置数据到 ViewHolder 中
         holder.wordTextView.setText(data.getWord());
         holder.phoneticTextView.setText(data.getPhonetic());
-
-//        holder.cardView.setOnClickListener(v -> {
-//            data.setExpanded(!data.isExpanded());
-//
-//            // 调用 ItemClickListener 处理展开和隐藏子项的逻辑
-//            if (data.getItemClickListener() != null) {
-//                if (data.isExpanded()) {
-//                    data.getItemClickListener().onExpandChildren(data);
-//                } else {
-//                    data.getItemClickListener().onHideChildren(data);
-//                }
-//            }
-//
-//            notifyDataSetChanged();
-//        });
     }
 
     @Override
@@ -64,7 +50,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         return dataList.size();
     }
 
-    public List<CardData> getDataList() {
+    public List<WordListData> getDataList() {
         return dataList;
     }
 
@@ -80,8 +66,36 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             // 找到布局中的元素
             wordTextView = itemView.findViewById(R.id.word_textview);
             phoneticTextView = itemView.findViewById(R.id.phonetic_textview);
+
+            // Set click listener for item view
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemClick(position);
+                        }
+                    }
+                }
+            });
         }
     }
+    //set clickListener
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+    public void setOnItemClickListener(WordListAdapter.OnItemClickListener listener) {
+        WordListAdapter.listener = listener;
+
+    }
+    public WordListData getItem(int position) {
+        if (position < dataList.size()) {
+            return dataList.get(position);
+        }
+        return null;
+    }
+
 
 }
 
