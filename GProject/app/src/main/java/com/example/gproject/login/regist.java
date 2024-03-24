@@ -77,7 +77,10 @@ public class regist extends AppCompatActivity {
             }
         });
     }
-
+    public void goLogin(View view){
+        Intent intent =new Intent(regist.this, login.class);
+        startActivity(intent);
+    }
     // 检查邮箱格式是否有效
     private boolean isEmailValid(String email) {
         // 在实际应用中，你可能需要更复杂的邮箱格式验证逻辑

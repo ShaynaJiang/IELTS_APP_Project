@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context="login.login">
 
-    <!-- LOG IN 文字樣 -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="342dp"
@@ -29,8 +28,10 @@
     </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="332dp"
-        android:layout_height="352dp"
+        android:id="@+id/greyBox"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="290dp"
         android:layout_marginRight="50dp"
@@ -40,8 +41,8 @@
 
         <EditText
             android:id="@+id/registEmail"
-            android:layout_width="300dp"
-            android:layout_height="51dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="88dp"
             android:hint="請輸入電子信箱"
             app:layout_constraintEnd_toEndOf="parent"
@@ -60,8 +61,8 @@
 
         <EditText
             android:id="@+id/registPass"
-            android:layout_width="300dp"
-            android:layout_height="51dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
             android:hint="請輸入密碼"
             app:layout_constraintEnd_toEndOf="parent"
@@ -81,11 +82,21 @@
             android:id="@+id/registButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="112dp"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="30dp"
             android:text="Send"
             android:backgroundTint="@color/red"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/registPass" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/greyBox"
+        android:layout_marginTop="5dp"
+        android:text="Do you already have an account?\nLet's Login!"
+        android:gravity="center"
+        android:textColor="@color/darkGrey"
+        android:clickable="true"
+        android:onClick="goLogin"/>
 </RelativeLayout>

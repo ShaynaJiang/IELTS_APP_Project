@@ -13,8 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gproject.adapter.CardAdapter;
 import com.example.gproject.adapter.CardData;
-import com.example.gproject.databinding.PraWordBinding;
-import com.example.gproject.reading.R_match;
 import com.example.gproject.reading.R_topic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,7 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WordCardActivity extends AppCompatActivity {
+public class WordListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private CardAdapter adapter;
@@ -42,7 +40,7 @@ public class WordCardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 在这里添加返回逻辑
-                Intent intent = new Intent(WordCardActivity.this, R_topic.class);
+                Intent intent = new Intent(WordListActivity.this, R_topic.class);
                 startActivity(intent);
                 finish();
             }
@@ -81,7 +79,7 @@ public class WordCardActivity extends AppCompatActivity {
                             // 将 CardData 添加到适配器的数据列表中
                             adapter.getDataList().add(cardData);
                             adapter.notifyDataSetChanged();
-                            Toast.makeText(WordCardActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WordListActivity.this, "Success", Toast.LENGTH_SHORT).show();
 
                         } else {
                             Log.e("WordCardActivity", "speechTextSnapshot dosen't exists()");

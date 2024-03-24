@@ -7,16 +7,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gproject.WordCard.Meaning;
 import com.example.gproject.WordCard.Definition;
-import com.example.gproject.WordCard.WordResult2;
 import com.example.gproject.databinding.MeaningRecyclerRowBinding;
 
 import java.util.List;
 
-public class MeaningAdapter2 extends RecyclerView.Adapter<MeaningAdapter2.MeaningViewHolder> {
+public class MeaningAdapter extends RecyclerView.Adapter<MeaningAdapter.MeaningViewHolder> {
 
     private List<Meaning> meaningList;
 
-    public MeaningAdapter2(List<Meaning> meaningList) {
+    public MeaningAdapter(List<Meaning> meaningList) {
         this.meaningList = meaningList;
     }
 

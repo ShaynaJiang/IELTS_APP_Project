@@ -8,9 +8,9 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.gproject.R;
-import com.example.gproject.WordCardActivity;
+import com.example.gproject.WordListActivity;
 //import com.example.gproject.WordQuizActivity;
-import com.example.gproject.WordQuizActivity2;
+import com.example.gproject.WordQuizActivity;
 import com.example.gproject.meaning.ShowMeaning;
 
 public class R_topic extends AppCompatActivity {
@@ -84,7 +84,7 @@ public class R_topic extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 在这里添加返回逻辑
-                Intent intent = new Intent(R_topic.this, WordQuizActivity2.class);
+                Intent intent = new Intent(R_topic.this, WordQuizActivity.class);
                 startActivity(intent);
                 // 结束当前活动（可选）
                 finish();
@@ -104,7 +104,7 @@ public class R_topic extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 在这里添加返回逻辑
-                Intent intent = new Intent(R_topic.this, WordCardActivity.class);
+                Intent intent = new Intent(R_topic.this, WordListActivity.class);
                 startActivity(intent);
                 // 结束当前活动（可选）
                 finish();

@@ -1,18 +1,17 @@
 package com.example.gproject.meaning;
 
-
 import static java.util.Collections.emptyList;
+
 import com.example.gproject.R;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.gproject.WordCard.WordResult2;
-import com.example.gproject.WordCardActivity;
-import com.example.gproject.adapter.CardData;
 import com.example.gproject.databinding.TestBinding;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,18 +23,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import retrofit2.Response;
 
 import com.example.gproject.reading.R_topic;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class ShowMeaning extends AppCompatActivity {
-    private String currentWord,definitions;
+    private String currentWord, definitions;
     private final AtomicBoolean isStarred = new AtomicBoolean(false);
     private TestBinding binding;
-    private MeaningAdapter2 adapter;
-
+    private MeaningAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +40,6 @@ public class ShowMeaning extends AppCompatActivity {
         binding = TestBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //// 獲取 Firebase Database 的參考
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference root = db.getReference("word_collect");
         ImageButton backButton = findViewById(R.id.back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,26 +58,6 @@ public class ShowMeaning extends AppCompatActivity {
                 currentWord = binding.searchInput.getText().toString();
 
                 getMeaning(currentWord);
-                root.child(currentWord).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            // 设置为默认状态的背景
-                            binding.starButton.setImageResource(R.drawable.ic_star_pressed);
-                            isStarred.set(false);
-                        } else {
-                            // 设置为按下状态的背景
-                            binding.starButton.setImageResource(R.drawable.ic_star_default);
-                            isStarred.set(true);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        // 处理错误
-                        Toast.makeText(getApplicationContext(), "Database Error", Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
         });
 
@@ -91,40 +65,80 @@ public class ShowMeaning extends AppCompatActivity {
         binding.starButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String word = binding.wordTextview.getText().toString();
-                String SpeechText = binding.phoneticTextview.getText().toString();
-                MeaningAdapter2.MeaningViewHolder viewHolder = (MeaningAdapter2.MeaningViewHolder) binding.meaningRecyclerView.findViewHolderForAdapterPosition(0); // 这里假设只有一项，你需要根据实际情况调整
-                String definitionsText = viewHolder.getDefinitionsText();
-                DataHolder obj = new DataHolder(definitionsText, SpeechText, 0);
 
                 if (isStarred.get()) {
                     // 如果已经收藏，点击后取消收藏
-                    root.child(word).removeValue();
+                    deleteCollectData();
                     // 设置为默认状态的背景
                     binding.starButton.setImageResource(R.drawable.ic_star_default);
                     // 更新状态
                     isStarred.set(false);
+                    Log.e("collect", "Failed with error: ");
                     Toast.makeText(getApplicationContext(), "Removed from collection", Toast.LENGTH_LONG).show();
                 } else {
-                    // 如果未收藏，点击后收藏
-                    root.child(word).setValue(obj);
-                    // 设置为按下状态的背景
-                    binding.starButton.setImageResource(R.drawable.ic_star_pressed);
-                    // 更新状态
-                    isStarred.set(true);
+                        // 如果未收藏，点击后收藏
+                        insertCollectData();
+                        // 设置为按下状态的背景
+                        binding.starButton.setImageResource(R.drawable.ic_star_pressed);
+                        // 更新状态
+                        isStarred.set(true);
                     Toast.makeText(getApplicationContext(), "Added to collection", Toast.LENGTH_LONG).show();
                 }
             }
         });
-
-        adapter = new MeaningAdapter2(emptyList());
+        adapter = new MeaningAdapter(emptyList());
         binding.meaningRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.meaningRecyclerView.setAdapter(adapter);
     }
 
+    public void insertCollectData() {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference root = db.getReference("word_collect");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            String userId = user.getUid();
+
+            String word = binding.wordTextview.getText().toString();
+            String speechText = binding.phoneticTextview.getText().toString();
+            MeaningAdapter.MeaningViewHolder viewHolder = (MeaningAdapter.MeaningViewHolder) binding.meaningRecyclerView.findViewHolderForAdapterPosition(0);
+            String definitionsText = viewHolder.getDefinitionsText();
+            DataHolder obj = new DataHolder(definitionsText, speechText, 0);
+
+            root.child(userId).child(word).setValue(obj);
+            Log.e("collect", "Added to collection " + userId + 1);
+
+        } else {
+            // Handle the case where the user is not authenticated
+            Log.e("collect", "User not authenticated");
+        }
+    }
+
+    public void deleteCollectData() {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference root = db.getReference("word_collect");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            String userId = user.getUid();
+
+            String word = binding.wordTextview.getText().toString();
+            String SpeechText = binding.phoneticTextview.getText().toString();
+            MeaningAdapter.MeaningViewHolder viewHolder = (MeaningAdapter.MeaningViewHolder) binding.meaningRecyclerView.findViewHolderForAdapterPosition(0); // 这里假设只有一项，你需要根据实际情况调整
+            String definitionsText = viewHolder.getDefinitionsText();
+            DataHolder obj = new DataHolder(definitionsText, SpeechText, 0);
+
+            root.child(userId).child(word).removeValue();
+            Log.e("collect", "Added to collection " + userId + 2);
+
+        } else {
+            // Handle the case where the user is not authenticated
+            Log.e("collect", "User not authenticated");
+        }
+    }
+
     public void getMeaning(String word) {
         setInProgress(true);
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -137,7 +151,6 @@ public class ShowMeaning extends AppCompatActivity {
                     if (response.body() == null) {
                         throw new Exception();
                     }
-
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -176,5 +189,4 @@ public class ShowMeaning extends AppCompatActivity {
             binding.progressBar.setVisibility(View.INVISIBLE);
         }
     }
-
 }

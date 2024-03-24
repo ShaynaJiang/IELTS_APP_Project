@@ -8,9 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.text.TextUtils;
 
@@ -33,10 +30,8 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
-public class WordQuizActivity2 extends AppCompatActivity {
+public class WordQuizActivity extends AppCompatActivity {
     private static final String TAG = "R_word";
     private RecyclerView recyclerView;
     private WordQuizAdapter adapter;
@@ -61,7 +56,7 @@ public class WordQuizActivity2 extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(WordQuizActivity2.this, R_topic.class);
+                Intent intent = new Intent(WordQuizActivity.this, R_topic.class);
                 startActivity(intent);
                 finish();
             }
@@ -232,18 +227,18 @@ public class WordQuizActivity2 extends AppCompatActivity {
                         // 設置問題和選項到 RecyclerView 的 adapter
                         adapter.setRandomQuestionAndOptions(selectedQuestions);
                     } else {
-                        Toast.makeText(WordQuizActivity2.this, "Not enough words for quiz", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WordQuizActivity.this, "Not enough words for quiz", Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e("WordCardActivity", "Failed with error: " + e.getMessage());
-                    Toast.makeText(WordQuizActivity2.this, "failed33", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(WordQuizActivity.this, "failed33", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(WordQuizActivity2.this, "Failed to fetch words", Toast.LENGTH_SHORT).show();
+                Toast.makeText(WordQuizActivity.this, "Failed to fetch words", Toast.LENGTH_SHORT).show();
             }
         });
     }
