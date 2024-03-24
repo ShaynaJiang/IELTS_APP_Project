@@ -16,6 +16,8 @@ import com.example.gproject.adapter.CardData;
 import com.example.gproject.databinding.PraWordBinding;
 import com.example.gproject.reading.R_match;
 import com.example.gproject.reading.R_topic;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DataSnapshot;
@@ -29,9 +31,6 @@ public class WordCardActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private CardAdapter adapter;
-    private List<CardData> dataList;
-    private PraWordBinding binding;
-    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,30 +44,27 @@ public class WordCardActivity extends AppCompatActivity {
                 // 在这里添加返回逻辑
                 Intent intent = new Intent(WordCardActivity.this, R_topic.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
             }
         });
-        // 创建一个包含 CardData 的列表
-        List<CardData> cardDataList = new ArrayList<>();
-        // 创建 WordCardActivity 对象时传递正确的参数类型
-        adapter = new CardAdapter(cardDataList);
 
         //初始化 RecyclerView 和 adapter
         recyclerView = findViewById(R.id.rcyQ);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        List<CardData> cardDataList = new ArrayList<>();
+        adapter = new CardAdapter(cardDataList);
 
-        SetData();
+        setCollectWordData();
     }
 
-    private void SetData() {
+    private void setCollectWordData() {
         // 獲取 Firebase Database 的參考
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference root = db.getReference("word_collect");
-        // 添加 ValueEventListener 以監聽數據變化
-//        root = FirebaseDatabase.getInstance().getReference().child("word_collect");
-        root.addValueEventListener(new ValueEventListener() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userID = user.getUid();
+        root.child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // 數據變化時的處理
@@ -88,13 +84,12 @@ public class WordCardActivity extends AppCompatActivity {
                             Toast.makeText(WordCardActivity.this, "Success", Toast.LENGTH_SHORT).show();
 
                         } else {
-                            // 处理 "speechText" 节点不存在的情况
-                            Toast.makeText(WordCardActivity.this, "SpeechText node does not exist", Toast.LENGTH_SHORT).show();
+                            Log.e("WordCardActivity", "speechTextSnapshot dosen't exists()");
                         }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.e("WordCardActivity", "Failed with error: " + e.getMessage());
-                        Toast.makeText(WordCardActivity.this, "failed33", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
