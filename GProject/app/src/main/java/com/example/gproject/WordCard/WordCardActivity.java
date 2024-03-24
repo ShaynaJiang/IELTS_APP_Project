@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -23,13 +22,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gproject.R;
 import com.example.gproject.WordListActivity;
-import com.example.gproject.adapter.WordListAdapter;
 import com.example.gproject.adapter.WordListData;
 import com.example.gproject.meaning.DictionaryApi;
 import com.example.gproject.meaning.MeaningAdapter;
 import com.example.gproject.meaning.RetrofitInstance;
 import com.example.gproject.databinding.AddCardActivityBinding;
-import com.example.gproject.reading.R_topic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -74,7 +71,7 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
             public void onClick(View v) {
                 if (textToSpeech != null) {
                     String wordText = binding.wordTextview.getText().toString();
-                    // 使用 TextToSpeech 朗读文字
+                    // use TextToSpeech reading
                     textToSpeech.speak(wordText, TextToSpeech.QUEUE_FLUSH, null, null);
                 }
             }
@@ -85,12 +82,12 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
         MeaningAdapter = new MeaningAdapter(emptyList());
         binding.cardRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.cardRecyclerView.setAdapter(MeaningAdapter);
+
         //backButton
         ImageButton backButton = findViewById(R.id.back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(WordCardActivity.this, WordListActivity.class);
                 startActivity(intent);
                 finish();
@@ -104,7 +101,7 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
 
         String word = intent.getStringExtra("word");
         String phonetic = intent.getStringExtra("phonetic");
-        // 更新 UI
+        // refresh UI
         TextView wordTextView = findViewById(R.id.word_textview);
         TextView phoneticTextView = findViewById(R.id.phonetic_textview);
         wordTextView.setText(word);
@@ -219,7 +216,7 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
                         DataSnapshot speechTextSnapshot = wordSnapshot.child("speechText");
                         String speechText = speechTextSnapshot.getValue(String.class);
                         WordListData cardData = new WordListData(word, speechText);
-                        dataList.add(cardData); // 将单词数据添加到适配器的数据列表中
+                        dataList.add(cardData); // Add Word into adapter
                         Log.d("FirebaseData", "Key: " + word + ", speechText: " + cardData);
 
                     } catch (Exception e) {
@@ -227,7 +224,7 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
                         Log.e("WordCardActivity", "Failed with error: " + e.getMessage());
                     }
                 }
-                // 初始化界面显示第一个单词
+                //show click wordcard
                 if (!dataList.isEmpty()) {
                     showWordData(currentPos);
                 }
@@ -260,10 +257,10 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
                         Math.abs(diffX) > SWIPE_THRESHOLD &&
                         Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                     if (diffX > 0) {
-                        // 向右滑动
+                        // right
                         showPreviousFlashcard();
                     } else {
-                        // 向左滑动
+                        // left
                         showNextFlashcard();
                     }
                     return true;
@@ -274,16 +271,17 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
             return false;
         }
     }
+
     // show previous Flashcard (right)
     private void showPreviousFlashcard() {
         if (currentPos < dataList.size() - 1) {
             currentPos++;
             showWordData(currentPos);
 
-            // 加载动画资源
+            // loading slide animation
             Animation leftInAnim = AnimationUtils.loadAnimation(this, R.anim.slide_out_right);
             Animation rightOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_in_left);
-            // 设置动画监听器，在动画结束时将视图切换为下一个单词
+            // set AnimationListener to change wordcard
             rightOutAnim.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
@@ -296,25 +294,24 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
                 public void onAnimationRepeat(Animation animation) {
                 }
             });
-            // 设置右滑出动画
+            // set Right slide animation
             binding.flashcardCardview.startAnimation(leftInAnim);
             binding.wordTextview.startAnimation(rightOutAnim);
             binding.phoneticTextview.startAnimation(rightOutAnim);
         }
         Log.e("WordCardActivity", "left" + currentPos);
     }
-
     //show next Flashcard (left)
     private void showNextFlashcard() {
         if (currentPos > 0) {
             currentPos--;
             showWordData(currentPos);
 
-            // 加载动画资源
+            // loading slide animation
             Animation leftOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
             Animation rightInAnim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
             Animation rightOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_in_left);
-            // 设置动画监听器，在动画结束时将视图切换为下一个单词
+            // set AnimationListener to change wordcard
             leftOutAnim.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
@@ -327,14 +324,13 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
                 public void onAnimationRepeat(Animation animation) {
                 }
             });
-            // 设置右滑出动画
+            // set Left slide animation
             binding.flashcardCardview.startAnimation(rightInAnim);
             binding.wordTextview.startAnimation(rightOutAnim);
             binding.phoneticTextview.startAnimation(rightOutAnim);
         }
         Log.e("WordCardActivity", "right" + currentPos);
     }
-
     public void getMeaning(String word) {
         new Thread(new Runnable() {
             @Override
@@ -368,7 +364,6 @@ public class WordCardActivity extends AppCompatActivity implements TextToSpeech.
             }
         }).start();
     }
-
     private void setUI(WordResult2 response) {
         binding.wordTextview.setText(response.getWord());
         binding.phoneticTextview.setText(response.getPhonetic());
