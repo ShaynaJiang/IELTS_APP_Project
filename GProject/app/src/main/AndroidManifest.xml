@@ -24,9 +24,9 @@
         <activity
             android:name=".reading.R_judge"
             android:exported="true"/>
-        <activity
-            android:name=".WordQuizActivity"
-            android:exported="true"/>
+<!--        <activity-->
+<!--            android:name=".WordQuizActivity"-->
+<!--            android:exported="true"/>-->
         <activity
             android:name=".meaning.ShowMeaning"
             android:exported="true"/>
@@ -52,7 +52,7 @@
             android:name=".WordCard.WordCardActivity"
             android:exported="true"/>
         <activity
-            android:name=".login.login"
+            android:name=".WordQuiz.LevelCQuizActivity"
             android:exported="true">
 
             <intent-filter>

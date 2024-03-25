@@ -34,39 +34,17 @@
                 android:id="@+id/A1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="20dp"
                 android:layout_marginLeft="10dp" />
 
             <RadioButton
                 android:id="@+id/A2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="20dp"
                 android:layout_marginLeft="10dp" />
 
         </RadioGroup>
-
-        <TextView
-            android:id="@+id/opt1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="CCC"
-            android:textSize="22sp"
-            app:layout_constraintStart_toEndOf="@id/radioGroup"
-            app:layout_constraintTop_toBottomOf="@id/Que" />
-
-        <TextView
-            android:id="@+id/opt2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="CCC"
-            android:textSize="22sp"
-            app:layout_constraintStart_toEndOf="@id/radioGroup"
-            app:layout_constraintTop_toBottomOf="@id/opt1" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

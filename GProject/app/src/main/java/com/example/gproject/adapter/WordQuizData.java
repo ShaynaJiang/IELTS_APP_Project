@@ -4,18 +4,37 @@ public class WordQuizData {
     private String definition;
     private String correctWord;
     private String incorrectWord;
-    private int selectedOption;  // 新增字段，用於記錄所選的選項
-    private String opt1;  // 新增字段，用于存储选项1的值
-    private String opt2;  // 新增字段，用于存储选项2的值
+    private int selectedOption;
+    private String opt1;
+    private String opt2;
+    private String PartOfSpeech, word;
 
-    public WordQuizData(String definition, String correctWord, String incorrectWord) {
+    public WordQuizData(String definition, String PartOfSpeech, String correctWord, String incorrectWord) {
         this.definition = definition;
+//        this.word = Word;
         this.correctWord = correctWord;
         this.incorrectWord = incorrectWord;
-        this.selectedOption = -1;  // 初始值設為-1表示未選擇
+        this.selectedOption = -1;
+        this.PartOfSpeech = PartOfSpeech;
         this.opt1 = opt1;
         this.opt2 = opt2;
 
+    }
+
+    public String getPartOfSpeech() {
+        return PartOfSpeech;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    public void setPartOfSpeech(String partOfSpeech) {
+        PartOfSpeech = partOfSpeech;
     }
 
     public void setOpt1(String opt1) {
