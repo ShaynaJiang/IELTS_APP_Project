@@ -53,6 +53,12 @@
             android:exported="true"/>
         <activity
             android:name=".WordQuiz.LevelCQuizActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".WordQuiz.LevelBQuizActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".WordQuiz.LevelAQuizActivity"
             android:exported="true">
 
             <intent-filter>

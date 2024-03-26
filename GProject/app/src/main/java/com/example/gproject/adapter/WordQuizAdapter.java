@@ -30,6 +30,7 @@ public class WordQuizAdapter extends RecyclerView.Adapter<WordQuizAdapter.ViewHo
     public WordQuizAdapter(Context context, List<WordQuizData> questions) {
         this.context = context;
         this.questions = questions;
+        this.recyclerView = recyclerView;
         this.selectedWord = new WordQuizData("", "","", "");  // 初始化 selectedWord
     }
 
@@ -112,36 +113,26 @@ public class WordQuizAdapter extends RecyclerView.Adapter<WordQuizAdapter.ViewHo
 
         }
     }
+    public RadioButton getRadioButtonAtPosition(int position, RecyclerView recyclerView) {
+        if (position >= 0 && position < questions.size()) {
+            ViewHolder viewHolder = (ViewHolder) recyclerView.findViewHolderForAdapterPosition(position);
+            if (viewHolder != null) {
+                return viewHolder.opt1RadioButton.isChecked() ? viewHolder.opt1RadioButton :
+                        viewHolder.opt2RadioButton.isChecked() ? viewHolder.opt2RadioButton : null;
+            }
+        }
+        return null;
+    }
 
     public void setQuestions(List<WordQuizData> questions) {
         this.questions = questions;
         notifyDataSetChanged();
-    }public WordQuizData getSelectedWord() {
+    }
+    public WordQuizData getSelectedWord() {
         return selectedWord;
     }
     public List<WordQuizData> getQuestions() {
         return questions;
     }
 
-
-    public void setRandomQuestionAndOptions(List<WordQuizData> wordList) {
-        if (wordList.size() >= 3) {
-            questions.clear();
-            int numberOfQuestions = 3;
-            for (int i = 0; i < numberOfQuestions; i++) {
-                WordQuizData questionWord = wordList.get(new Random().nextInt(wordList.size()));
-                List<WordQuizData> optionWords = new ArrayList<>(wordList);
-                optionWords.remove(questionWord);
-                Collections.shuffle(optionWords);
-                WordQuizData correctOption = optionWords.get(0);
-                optionWords.remove(correctOption);
-                Collections.shuffle(optionWords);
-                WordQuizData incorrectOption = optionWords.get(0);
-//                questions.add(new WordQuizData(questionWord.getWord(), correctOption.getDefinition(), incorrectOption.getIncorrectWord()));
-            }
-            notifyDataSetChanged();
-        } else {
-            Toast.makeText(context, "Insufficient number of words to conduct quiz", Toast.LENGTH_SHORT).show();
-        }
-    }
 }
