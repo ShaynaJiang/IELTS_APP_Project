@@ -9,8 +9,13 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="30dp">
+        android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="30dp"
+        app:layout_constraintTop_toTopOf="parent">
 
         <View
             android:id="@+id/view"
@@ -110,7 +115,6 @@
             android:id="@+id/opt1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:text="AAAA"
             app:layout_constraintWidth_default="wrap"
@@ -148,7 +152,6 @@
             android:id="@+id/opt2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:text="AAAA"
             app:layout_constraintWidth_default="wrap"
@@ -186,7 +189,6 @@
             android:id="@+id/opt3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:text="AAAA"
             app:layout_constraintWidth_default="wrap"
@@ -194,5 +196,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/Q1"
             app:layout_constraintTop_toBottomOf="@+id/Q3" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/sendAns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/red"
+            android:layout_marginBottom="10dp"
+            android:text="Send"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cons"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -43,11 +43,11 @@
             android:name=".reading.R_match"
             android:exported="true"/>
         <activity
-        android:name=".chos_test"
+        android:name=".ChoseTestActivity"
         android:exported="true"/>
-        <activity
-            android:name=".reading.R_topic"
-            android:exported="true"/>
+<!--        <activity-->
+<!--            android:name=".reading.R_topic"-->
+<!--            android:exported="true"/>-->
         <activity
             android:name=".WordCard.WordCardActivity"
             android:exported="true"/>
@@ -59,6 +59,9 @@
             android:exported="true"/>
         <activity
             android:name=".WordQuiz.LevelAQuizActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".reading.R_topic"
             android:exported="true">
 
             <intent-filter>

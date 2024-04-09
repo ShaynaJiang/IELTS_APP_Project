@@ -48,15 +48,27 @@
             app:layout_constraintTop_toBottomOf="@id/view"
             tools:layout_editor_absoluteY="108dp"></TextView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
+       <Button
+           android:id="@+id/test1"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           app:layout_constraintStart_toStartOf="parent"
+           app:layout_constraintEnd_toEndOf="parent"
+           android:text="Test1"
+           android:textSize="24dp"
+           android:layout_margin="20dp"
+           android:backgroundTint="@color/red"
+           app:layout_constraintTop_toBottomOf="@+id/NumID"/>
+        <Button
+            android:id="@+id/test2"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/NumID" />
-
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Test2"
+            android:textSize="24dp"
+            android:layout_margin="20dp"
+            android:backgroundTint="@color/red"
+            app:layout_constraintTop_toBottomOf="@+id/test1"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -1,9 +1,12 @@
 package com.example.gproject.reading;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -20,25 +23,70 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class R_chose extends AppCompatActivity {
-    private static final String TAG = "R_chose"; // 用你的类名替代 YourClassName
+    private static final String TAG = "R_chose";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.r_chose);
 
+        int number = getIntent().getIntExtra("ChoseNumber", 0);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference documentRef = db.collection("R_chose").document(String.valueOf(number));
+        // 假設您要抓取的欄位數量是3
+        int numberOfFields = 3;
+
         ImageButton backButton = findViewById(R.id.back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(R_chose.this, R_topic.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
             }
         });
 
+        Button send = findViewById(R.id.sendAns);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                documentRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                for (int i = 0; i < numberOfFields; i++) {
+                                    String ansName = "A" + (i + 1);
+                                    int ansId = getResources().getIdentifier(ansName, "id", getPackageName());
+
+                                    if (document.contains(ansName)) {
+                                        EditText editText = findViewById(ansId);
+                                        String editTextValue = editText.getText().toString().trim();
+
+                                        //get Firestore's ans colum
+                                        String firestoreValue = document.getString(ansName);
+                                        Log.e("mattttt", firestoreValue);
+                                        Log.e("mattttt2", editTextValue);
+                                        // compare the value of EditText and Firestore's colum
+                                        if (!editTextValue.equals(firestoreValue)) {
+                                            //mark incorrect answer
+                                            editText.setTextColor(Color.RED);
+                                        }
+                                    }
+                                }
+                            } else {
+                                Log.d(TAG, "No such document");
+                                // Firestore 中不存在文档时，您可以在此处进行其他操作，比如显示一条消息
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+
+            }
+        });
         ScrollView scrollView = findViewById(R.id.scrollView);
         scrollView.post(new Runnable() {
             @Override
@@ -47,11 +95,7 @@ public class R_chose extends AppCompatActivity {
             }
         });
         scrollView.fullScroll(ScrollView.FOCUS_UP);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference documentRef = db.collection("R_chose").document("2");
-
-        // 从 Reading 集合中的 Document ID 2 中读取数据
+        //set value
         documentRef.get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -65,10 +109,7 @@ public class R_chose extends AppCompatActivity {
                                 String content = document.getString("content");
                                 TextView ContentTextView = findViewById(R.id.Content);
                                 ContentTextView.setText(content);
-
-                                // 假設您要抓取的欄位數量是3
-                                int numberOfFields = 3;
-                                // 創建一個 StringBuilder 陣列來保存結果
+                                // build a StringBuilder array to save
                                 StringBuilder[] resultBuilders = new StringBuilder[numberOfFields];
                                 StringBuilder[] resultBuilders2 = new StringBuilder[numberOfFields];
                                 for (int i = 0; i < numberOfFields; i++) {
@@ -78,7 +119,7 @@ public class R_chose extends AppCompatActivity {
 
                                 for (int i = 0; i < numberOfFields; i++) {
 
-                                    String fieldName = "Q" + (i + 1); // 組合欄位名稱，例如 Q1、Q2、Q3
+                                    String fieldName = "Q" + (i + 1);
                                     String fieldData = document.getString(fieldName);
 
                                     String optName = "opt" + (i + 1);
@@ -98,26 +139,20 @@ public class R_chose extends AppCompatActivity {
                                             for (int k = 0; k < splitQue.length; k++) {
                                                 resultBuilders2[i].append(splitQue[k].trim()).append(".\n");
                                             }
-                                            // 將每個句子後面加上換行符號
                                             for (int j = 0; j < splitData.length; j++) {
                                                 resultBuilders[i].append(splitData[j].trim()).append(".\n");
                                             }
                                             displayQuestion(fieldName, resultBuilders2[i].toString());
                                             displayQuestion(optName, resultBuilders[i].toString());
                                         }
-                                    }else {
+                                    } else {
                                         findViewById(questionId).setVisibility(View.GONE);
                                         findViewById(optionId).setVisibility(View.GONE);
                                         findViewById(ansId).setVisibility(View.GONE);
-                                        }
                                     }
-
-                                Toast.makeText(R_chose.this, "faile45", Toast.LENGTH_SHORT).show();
-
+                                }
                             } else {
                                 Log.d(TAG, "No such document");
-                                Toast.makeText(R_chose.this, "failed33", Toast.LENGTH_SHORT).show();
-
                             }
                         } else {
                             Log.e(TAG, "Error getting document", task.getException());
@@ -126,7 +161,8 @@ public class R_chose extends AppCompatActivity {
                     }
                 });
     }
-    private void displayQuestion(String cul,String que){
+
+    private void displayQuestion(String cul, String que) {
         TextView optTextView = null;
         switch (cul) {
             case "Q1":
@@ -150,4 +186,4 @@ public class R_chose extends AppCompatActivity {
         }
         optTextView.setText(que);
     }
-    }
+}

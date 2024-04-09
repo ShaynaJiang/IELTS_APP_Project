@@ -1,9 +1,12 @@
 package com.example.gproject.reading;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -15,29 +18,73 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.gproject.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class R_match extends AppCompatActivity {
-    private static final String TAG = "R_match"; // 用你的类名替代 YourClassName
+    private static final String TAG = "R_match";
 
     @Override
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.r_match);
 
+        int number = getIntent().getIntExtra("ChoseNumber", 0);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference documentRef = db.collection("R_match").document(String.valueOf(number));
+        // 假設要抓取的欄位數量
+        int numberOfFields = 5;
+
         ImageButton backButton = findViewById(R.id.back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(R_match.this, R_topic.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
+            }
+        });
+        Button send = findViewById(R.id.sendAns);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                documentRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                for (int i = 0; i < numberOfFields; i++) {
+                                    String ansName = "A" + (i + 1);
+                                    int ansId = getResources().getIdentifier(ansName, "id", getPackageName());
+
+                                    if (document.contains(ansName)) {
+                                        EditText editText = findViewById(ansId);
+                                        String editTextValue = editText.getText().toString().trim();
+
+                                        //get Firestore's ans colum
+                                        String firestoreValue = document.getString(ansName);
+                                        Log.e("mattttt", firestoreValue);
+                                        Log.e("mattttt2", editTextValue);
+                                        // compare the value of EditText and Firestore's colum
+                                        if (!editTextValue.equals(firestoreValue)) {
+                                            //mark incorrect answer
+                                            editText.setTextColor(Color.RED);
+                                        }
+                                    }
+                                }
+                            } else {
+                                Log.d(TAG, "No such document");
+                                // Firestore 中不存在文档时，您可以在此处进行其他操作，比如显示一条消息
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
             }
         });
 
@@ -45,27 +92,23 @@ public class R_match extends AppCompatActivity {
         scrollView.post(new Runnable() {
             @Override
             public void run() {
-                scrollView.fullScroll(View.FOCUS_UP); // 将滚动位置移动到top
+                scrollView.fullScroll(View.FOCUS_UP);
             }
         });
         scrollView.fullScroll(ScrollView.FOCUS_UP);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference documentRef = db.collection("R_match").document("1");
-
-        // 从 Reading 集合中的 Document ID 2 中读取数据
+        //set value
         documentRef.get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
-                            //q
-                            //options
+
                             if (document.exists()) {
-                                //setContent
+                                //set Content
                                 String content = document.getString("content");
-                                String[] splitCont = content.split("\\n");
+                                String[] splitCont = content.split("。");
                                 StringBuilder combinedContent = new StringBuilder();
                                 for (String line : splitCont) {
                                     combinedContent.append(line).append("\n");
@@ -91,9 +134,7 @@ public class R_match extends AppCompatActivity {
                                 TextView MatchTextView = findViewById(R.id.match);
                                 MatchTextView.setText(combinedMatch.toString());
 
-                               // 假設您要抓取的欄位數量是3
-                                int numberOfFields = 5;
-                                // 創建一個 StringBuilder 陣列來保存結果
+                                // build a StringBuilder array to save
                                 StringBuilder[] resultBuilders = new StringBuilder[numberOfFields];
                                 StringBuilder[] resultBuilders2 = new StringBuilder[numberOfFields];
                                 for (int i = 0; i < numberOfFields; i++) {
@@ -103,69 +144,58 @@ public class R_match extends AppCompatActivity {
 
                                 for (int i = 0; i < numberOfFields; i++) {
 
-                                    String titleName = "title" + (i + 1); // 組合欄位名稱，例如 Q1、Q2、Q3
-                                    String titleData = document.getString(titleName);
-
-                                    String fieldName = "Q" + (i + 1); // 組合欄位名稱，例如 Q1、Q2、Q3
-                                    String fieldData = document.getString(fieldName);
-                                    Toast.makeText(R_match.this, fieldName, Toast.LENGTH_SHORT).show();
-
-                                    String ansName = "A" + (i + 1);
-                                        try {
-                                    int questionId = getResources().getIdentifier(fieldName, "id", getPackageName());
-                                    int ansId = getResources().getIdentifier(ansName, "id", getPackageName());
-                                    int titleId = getResources().getIdentifier(titleName, "id", getPackageName());
-                                    //check title exit
-                                    if (document.contains(titleName) || document.contains(fieldName)) {
-                                        // 调用 toString() 方法
-
-                                        String[] splitTitle = titleData.split("\\.");
-                                        resultBuilders[i] = new StringBuilder();
-                                        for (int j = 0; j < splitTitle.length; j++) {
-                                            resultBuilders[i].append(splitTitle[j].trim()).append(".\n");
+                                    String titleName = "title" + (i + 1);
+                                    String fieldName = "Q" + (i + 1);
+                                    Log.d("QQQQQ", fieldName);
+                                    try {
+                                        // check whether Q is exit
+                                        if (document.contains(fieldName)) {
+                                            String fieldData = document.getString(fieldName);
+                                            String[] splitField = fieldData.split("\\.");
+                                            StringBuilder combinedField = new StringBuilder();
+                                            for (String line : splitField) {
+                                                combinedField.append(line.trim()).append(".\n");
+                                            }
+                                            Log.d("QQ2", fieldName);
+                                            Log.d("QQ2", combinedField.toString());
+                                            displayQuestion(fieldName, combinedField.toString());
+                                        } else {
+                                            int questionId = getResources().getIdentifier(fieldName, "id", getPackageName());
+                                            findViewById(questionId).setVisibility(View.GONE);
+                                            String ansName = "A" + (i + 1);
+                                            int ansId = getResources().getIdentifier(ansName, "id", getPackageName());
+                                            findViewById(ansId).setVisibility(View.GONE);
                                         }
-                                        displayTitle(titleName, resultBuilders[i].toString());
 
-//                                    }
-//                                    else{
-//                                        findViewById(titleId).setVisibility(View.GONE);
-//                                    }
-//                                    //check Q exit
-//                                    if(document.contains(fieldName)) {
-                                        String[] splitQue = fieldData.split("\\.");
-                                        resultBuilders2[i] = new StringBuilder();
-                                        for (int k = 0; k < splitQue.length; k++) {
-                                            resultBuilders2[i].append(splitQue[k].trim()).append(".\n");
+                                        // check whether title is exit
+                                        if (document.contains(titleName)) {
+                                            String titleData = document.getString(titleName);
+                                            String[] splitTitle = titleData.split("\\.");
+                                            StringBuilder combinedTitle = new StringBuilder();
+                                            for (String line : splitTitle) {
+                                                combinedTitle.append(line.trim()).append(".\n");
+                                            }
+                                            displayTitle(titleName, combinedTitle.toString());
+                                        } else {
+                                            int titleId = getResources().getIdentifier(titleName, "id", getPackageName());
+                                            findViewById(titleId).setVisibility(View.GONE);
                                         }
-                                        displayQuestion(fieldName, resultBuilders2[i].toString());
-                                    }else {
-                                        findViewById(questionId).setVisibility(View.GONE);
-                                        findViewById(ansId).setVisibility(View.GONE);
-                                        findViewById(titleId).setVisibility(View.GONE);
+                                    } catch (Exception e) {
 
-
-                                    }} catch (Exception e) {
-                                    e.printStackTrace();
-//                                    Toast.makeText(R_match.this, fieldName, Toast.LENGTH_SHORT).show();
-                                    // 处理异常，例如记录日志或者其他操作
+                                        e.printStackTrace();
+                                    }
                                 }
-                                }
-
-                                Toast.makeText(R_match.this, "faile45", Toast.LENGTH_SHORT).show();
-
                             } else {
                                 Log.d(TAG, "No such document");
-                                Toast.makeText(R_match.this, "failed33", Toast.LENGTH_SHORT).show();
-
                             }
                         } else {
                             Log.e(TAG, "Error getting document", task.getException());
-                            Toast.makeText(R_match.this, "failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
-    private void displayQuestion(String cul,String que){
+
+    private void displayQuestion(String cul, String que) {
         TextView optTextView = null;
         switch (cul) {
             case "Q1":
@@ -183,22 +213,17 @@ public class R_match extends AppCompatActivity {
             case "Q5":
                 optTextView = findViewById(R.id.Q5);
                 break;
-
-            default:
-//                Toast.makeText(R_match.this, cul, Toast.LENGTH_SHORT).show();
-
-                break;
         }
-
         if (optTextView != null) {
             optTextView.setText(que);
         } else {
             Log.e(TAG, "OptTextView is null for cul: " + cul);
         }
     }
-    private void displayTitle(String cul,String que){
+
+    private void displayTitle(String cul, String que) {
         TextView titleTextview = null;
-        switch (cul){
+        switch (cul) {
             case "title1":
                 titleTextview = findViewById(R.id.title1);
                 break;

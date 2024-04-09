@@ -17,7 +17,9 @@ import com.example.gproject.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class WordQuizAdapter extends RecyclerView.Adapter<WordQuizAdapter.ViewHolder> {
@@ -25,13 +27,14 @@ public class WordQuizAdapter extends RecyclerView.Adapter<WordQuizAdapter.ViewHo
     private Context context;
     private WordQuizData selectedWord;
     private RecyclerView recyclerView;
-    private RadioGroup radioButton;
+    private Map<String, String> wordIds;
 
     public WordQuizAdapter(Context context, List<WordQuizData> questions) {
         this.context = context;
         this.questions = questions;
         this.recyclerView = recyclerView;
-        this.selectedWord = new WordQuizData("", "","", "");  // 初始化 selectedWord
+        this.wordIds = new HashMap<>();
+        this.selectedWord = new WordQuizData("", "","", "","");  // 初始化 selectedWord
     }
 
     @NonNull
@@ -49,6 +52,7 @@ public class WordQuizAdapter extends RecyclerView.Adapter<WordQuizAdapter.ViewHo
         holder.questionTextView.setText(questionText);
         holder.opt1RadioButton.setText(question.getCorrectWord());
         holder.opt2RadioButton.setText(question.getIncorrectWord());
+        holder.itemView.setTag(question.getDocumentId());
 
         holder.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -94,8 +98,6 @@ public class WordQuizAdapter extends RecyclerView.Adapter<WordQuizAdapter.ViewHo
             viewHolder.radioButton.setTextColor(Color.RED);
         }
     }
-
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView questionTextView;
         RadioButton opt1RadioButton;
@@ -123,7 +125,15 @@ public class WordQuizAdapter extends RecyclerView.Adapter<WordQuizAdapter.ViewHo
         }
         return null;
     }
+    // 添加单词及其对应的 ID
+    public void addWordId(String word, String id) {
+        wordIds.put(word, id);
+    }
 
+    // 获取单词的 ID
+    public String getWordId(String word) {
+        return wordIds.get(word);
+    }
     public void setQuestions(List<WordQuizData> questions) {
         this.questions = questions;
         notifyDataSetChanged();

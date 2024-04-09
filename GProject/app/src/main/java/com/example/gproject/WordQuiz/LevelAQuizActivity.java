@@ -1,7 +1,10 @@
 package com.example.gproject.WordQuiz;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +27,7 @@ import com.example.gproject.adapter.WordQuizData;
 import com.example.gproject.reading.R_topic;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,9 +41,7 @@ import java.util.Random;
 public class LevelAQuizActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private WordQuizAdapter adapter;
-
     private String collectionName;
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,38 +73,49 @@ public class LevelAQuizActivity extends AppCompatActivity {
             wordSendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int score = 0;
-                    // 遍历 RecyclerView 中的每个单词
-                    for (int i = 0; i < adapter.getItemCount(); i++) {
-                        try {
-                            // 获取当前位置的单词数据
-                            WordQuizData word = adapter.getQuestions().get(i);
-                            // 获取当前单词的定义和词性
-                            String questionText = word.getDefinition() + " " + word.getPartOfSpeech();
-                            // 获取当前 RecyclerView 中的 ViewHolder
-                            RecyclerView.ViewHolder viewHolder = QuizRecycler.findViewHolderForAdapterPosition(i);
-                            if (viewHolder != null) {
-                                // 在 ViewHolder 中查找 RadioButton 和 QueWord
-                                RadioButton radioButton = adapter.getRadioButtonAtPosition(i, QuizRecycler);
-                                TextView QueWord = viewHolder.itemView.findViewById(R.id.Que);
-//                                String AAA = selectedRadioButtonText.getDefinition()
-                                // 检查用户选择的答案是否与正确答案匹配
-                                if (radioButton.isChecked() && questionText.equals(QueWord.getText().toString())) {
-                                    // 回答正确
-                                    score++;
-                                    Log.e("Correct check", QueWord.getText().toString());
-                                    Log.e("Correct Answer",  questionText + ", Correct Option: " + radioButton.getText().toString());
-                                } else {
-                                    // 回答错误，标记正确答案为红色或采取其他操作
-                                    Log.e("Incorrect AAA", QueWord.getText().toString());
-                                    Log.e("Incorrect Answer", "Word: " + questionText + ", Correct Option: " + radioButton.getText().toString());
+                    try {
+                        int score = 0;
+                        // 遍历 RecyclerView 中的每个单词
+                        for (int i = 0; i < adapter.getItemCount(); i++) {
+                            try {
+                                // 获取当前位置的单词数据
+                                WordQuizData word = adapter.getQuestions().get(i);
+                                // 获取当前单词的定义和词性
+                                String questionText = word.getDefinition() + " " + word.getPartOfSpeech();
+                                // 获取当前 RecyclerView 中的 ViewHolder
+                                RecyclerView.ViewHolder viewHolder = QuizRecycler.findViewHolderForAdapterPosition(i);
+                                if (viewHolder != null) {
+                                    // 在 ViewHolder 中查找 RadioButton 和 QueWord
+                                    RadioButton radioButton = adapter.getRadioButtonAtPosition(i, QuizRecycler);
+                                    String selectedWord = radioButton.getText().toString();
+
+                                    TextView QueWord = viewHolder.itemView.findViewById(R.id.Que);
+                                    // 检查用户选择的答案是否与正确答案匹配
+                                    String selectedDocumentId = (String) viewHolder.itemView.getTag();
+                                    if (selectedDocumentId.equals(selectedWord)) {
+                                        if (radioButton.isChecked()) {
+                                            // 回答正确
+                                            score++;
+                                            Log.e("Correct check", QueWord.getText().toString());
+                                            Log.e("Correct Answer", selectedDocumentId + ", Correct Option: " + selectedWord);
+                                        } else
+//                                            radioButton.setTextColor(Color.RED);
+                                            Log.e("Incorrect AAA", QueWord.getText().toString());
+                                        Log.e("Incorrect Answer", selectedDocumentId + ", Correct Option: " + selectedWord);
+                                    }else {
+                                        radioButton.setTextColor(Color.RED);
+                                    }
                                 }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Log.e("FireStore A2 ", "error: " + e.getMessage());
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.e("FireStore A2 ", "error: " + e.getMessage());
                         }
-                    }showScoreDialog(score);
+                        showScoreDialog(score);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.e("FireStore B1 ", "error: " + e.getMessage());
+                    }
                 }
 
             });
@@ -117,15 +130,35 @@ public class LevelAQuizActivity extends AppCompatActivity {
     public void showScoreDialog(int score) {
         AlertDialog.Builder builder = new AlertDialog.Builder(LevelAQuizActivity.this);
         builder.setTitle("Your Score");
-        builder.setMessage("You scored " + score + " out of " + adapter.getQuestions().size());
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+
+        // 根据得分确定按钮文本和点击事件
+        if (score > 1) {
+            builder.setMessage("You scored " + score + " out of " + adapter.getQuestions().size()+"\nLet's go to Level B.");
+
+            builder.setPositiveButton("Go", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // 跳转到 LevelBActivity
+                    Intent intent = new Intent(LevelAQuizActivity.this, LevelBQuizActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+        } else {
+            builder.setMessage("You scored " + score + " out of " + adapter.getQuestions().size()+"\nYou have to Retry!");
+
+            builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // 用户选择重试，可以在这里执行重新开始游戏的逻辑
+                    dialog.dismiss();
+                }
+            });
+        }
+
         builder.show();
     }
+
     public void getRandomQuestionAndOptions(String collectionName) {
 
         db.collection(collectionName)
@@ -141,7 +174,7 @@ public class LevelAQuizActivity extends AppCompatActivity {
                                     String word = document.getId();
                                     String meaning = document.getString("meaning");
                                     String pos = document.getString("pos");
-                                    wordList.add(new WordQuizData(meaning, pos, word, word));
+                                    wordList.add(new WordQuizData(meaning, pos, word, word, word));
                                     Log.e("Show A", meaning);
                                 }
                                 setRandomQuestionAndOptions(wordList);
@@ -185,8 +218,8 @@ public class LevelAQuizActivity extends AppCompatActivity {
                     // 設置題目和選項
                     String questionText2 = questionWord.getDefinition() + " " + pos;
 
-//                adapter.getQuestions().add(new WordQuizData(questionText, correctOption, incorrectOption));
-                    adapter.getQuestions().add(new WordQuizData(questionText2, pos, correctOption, incorrectOption));
+                    adapter.addWordId(questionText2, questionWord.getWord());
+                    adapter.getQuestions().add(new WordQuizData(questionText2, pos, correctOption, incorrectOption, questionWord.getDocumentId()));
                 }
                 adapter.notifyDataSetChanged();
             } else {

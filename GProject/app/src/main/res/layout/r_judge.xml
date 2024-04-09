@@ -7,11 +7,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
-
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/cons"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="30dp">
+    android:layout_height="wrap_content"
+    android:paddingBottom="30dp"
+    app:layout_constraintTop_toTopOf="parent">
 
     <View
         android:id="@+id/view"
@@ -22,6 +26,18 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <ImageButton
+        android:id="@+id/back"
+        android:layout_width="60dp"
+        android:layout_height="50dp"
+        android:src="@drawable/back"
+        android:contentDescription=" "
+        android:background="?android:attr/selectableItemBackground"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </ImageButton>
 
     <TextView
         android:id="@+id/articleTitle"
@@ -40,7 +56,7 @@
         android:text="AAAA"/>
 
     <com.example.gproject.JustifyTextView
-        android:id="@+id/articleContent"
+        android:id="@+id/Content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
@@ -56,6 +72,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/articleTitle"/>
 
+    <com.example.gproject.JustifyTextView
+        android:id="@+id/match"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginRight="30dp"
+        android:text="Question"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Content"/>
 
     <TextView
         android:id="@+id/Ques"
@@ -69,75 +98,115 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/articleContent"
+        app:layout_constraintTop_toBottomOf="@+id/match"
         android:text="Question"
         ></TextView>
-    <TextView
+    <EditText
+        android:id="@+id/A1"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Ques" />
+    <com.example.gproject.JustifyTextView
         android:id="@+id/Q1"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
-        android:textSize="18sp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:text="AAAA"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Ques"
-        android:text="AAAA"/>
-    <TextView
-        android:id="@+id/Q2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Q1"
-        android:text="AAAA"/>
-    <TextView
-        android:id="@+id/Q3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginBottom="30dp"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Q2"
-        android:text="AAAA"/>
-    <TextView
-        android:id="@+id/Q4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginBottom="30dp"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Q2"
-        android:text="AAAA"/>
-    <ImageButton
-        android:id="@+id/back"
-        android:layout_width="60dp"
-        android:layout_height="50dp"
-        android:src="@drawable/back"
-        android:contentDescription=" "
-        android:background="?android:attr/selectableItemBackground"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toEndOf="@+id/A1"
+        app:layout_constraintTop_toTopOf="@+id/A1" />
 
-    </ImageButton>
+    //
+    <EditText
+        android:id="@+id/A2"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Q1" />
+    <com.example.gproject.JustifyTextView
+        android:id="@+id/Q2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:text="ABBB"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/A2"
+        app:layout_constraintTop_toTopOf="@+id/A2" />
+
+    //
+    <EditText
+        android:id="@+id/A3"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Q2" />
+
+    //
+
+    <com.example.gproject.JustifyTextView
+        android:id="@+id/Q3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:text="ABBB"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/A3"
+        app:layout_constraintTop_toTopOf="@+id/A3" />
+
+    <EditText
+        android:id="@+id/A4"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Q3" />
+    <com.example.gproject.JustifyTextView
+        android:id="@+id/Q4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:text="ABBB"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/A4"
+        app:layout_constraintTop_toTopOf="@+id/A4" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+    <Button
+        android:id="@+id/sendAns"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:layout_marginBottom="10dp"
+        android:text="Send"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cons"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

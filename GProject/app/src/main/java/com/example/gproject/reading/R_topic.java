@@ -2,11 +2,13 @@ package com.example.gproject.reading;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.gproject.ChoseTestActivity;
 import com.example.gproject.R;
 import com.example.gproject.WordListActivity;
 import com.example.gproject.WordQuiz.LevelAQuizActivity;
@@ -32,85 +34,68 @@ public class R_topic extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(R_topic.this, R_blank.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
             }
         });
         ButBlank.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
-                Intent intent = new Intent(R_topic.this, R_blank.class);
-                startActivity(intent);
-                // 结束当前活动（可选）
-                finish();
+                goToChoseTest(1);
             }
         });
         ButJudge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
-                Intent intent = new Intent(R_topic.this, R_judge.class);
-                startActivity(intent);
-                // 结束当前活动（可选）
-                finish();
+                goToChoseTest(2);
             }
         });
         BUtChos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
-                Intent intent = new Intent(R_topic.this, R_chose.class);
-                startActivity(intent);
-                // 结束当前活动（可选）
-                finish();
+                goToChoseTest(3);
             }
         });
         BUtMatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
-                Intent intent = new Intent(R_topic.this, R_match.class);
-                startActivity(intent);
-                // 结束当前活动（可选）
-                finish();
+                goToChoseTest(4);
             }
         });
 
         BUtWord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(R_topic.this, LevelAQuizActivity.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
             }
         });
         ButTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(R_topic.this, ShowMeaning.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
             }
         });
         ButCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在这里添加返回逻辑
                 Intent intent = new Intent(R_topic.this, WordListActivity.class);
                 startActivity(intent);
-                // 结束当前活动（可选）
                 finish();
             }
         });
     }
-
+    private void goToChoseTest(int number) {
+        Intent intent = new Intent(this, ChoseTestActivity.class);
+        intent.putExtra("number", number);
+        startActivity(intent);
+        Log.d("topic","A"+ number);
+    }
 }
+
+
 
