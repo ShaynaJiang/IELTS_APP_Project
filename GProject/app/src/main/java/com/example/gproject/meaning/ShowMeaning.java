@@ -76,7 +76,7 @@ public class ShowMeaning extends AppCompatActivity {
         }
     }
 
-    // Change StarButton's state
+        // Change StarButton's state
     public void collect_word(ImageView star) {
         star.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +98,6 @@ public class ShowMeaning extends AppCompatActivity {
             }
         });
     }
-
     //Insert Collect Word
     public void insertCollectData() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -121,7 +120,6 @@ public class ShowMeaning extends AppCompatActivity {
             Log.e("collect", "User not authenticated");
         }
     }
-
     //Delete Collect Word
     public void deleteCollectData() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -144,7 +142,7 @@ public class ShowMeaning extends AppCompatActivity {
             Log.e("collect", "User not authenticated");
         }
     }
-    //Determine whether word is collected in Database
+    //Identify whether word is collected in Database
     private int isWordCollected(final String word) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference root = db.getReference("word_collect");
@@ -177,7 +175,8 @@ public class ShowMeaning extends AppCompatActivity {
         });
         return is;
     }
-
+    
+    //show meaning
     public void getMeaning(String word) {
         setInProgress(true);
         new Thread(new Runnable() {
