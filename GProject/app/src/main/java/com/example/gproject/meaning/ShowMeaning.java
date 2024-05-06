@@ -2,27 +2,21 @@ package com.example.gproject.meaning;
 
 import static java.util.Collections.emptyList;
 
-import com.example.gproject.R;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.example.gproject.WordCard.WordResult;
-import com.example.gproject.adapter.WordListData;
-import com.example.gproject.databinding.WordDicSearchBinding;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import retrofit2.Response;
-
+import com.example.gproject.R;
+import com.example.gproject.WordCard.WordResult2;
+import com.example.gproject.WordCard.WordTopicActivity;
+import com.example.gproject.databinding.WordDicSearchBinding;
 import com.example.gproject.reading.R_topic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,61 +26,77 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import retrofit2.Response;
+
 public class ShowMeaning extends AppCompatActivity {
     private String currentWord, definitions;
     private final AtomicBoolean isStarred = new AtomicBoolean(false);
     private WordDicSearchBinding binding;
     private MeaningAdapter adapter;
-    int is = 0;
+    int is;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = WordDicSearchBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        try {
+            ImageView star = findViewById(R.id.starButton);
+            star.setVisibility(View.INVISIBLE);
+            ImageButton backButton = findViewById(R.id.back);
+            backButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ShowMeaning.this, WordTopicActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+            //Search Word
+            binding.searchBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    currentWord = binding.searchInput.getText().toString();
+                    isWordCollected(currentWord);
+                    getMeaning(currentWord);
+                    star.setVisibility(View.VISIBLE);
+                }
+            });
+            collect_word(star);
 
-        ImageButton backButton = findViewById(R.id.back);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShowMeaning.this, R_topic.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-        //Search Word
-        binding.searchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                currentWord = binding.searchInput.getText().toString();
-                isWordCollected(currentWord);
-                getMeaning(currentWord);
-            }
-        });
-        // click starButton to change collect state
-        binding.starButton.setOnClickListener(new View.OnClickListener() {
+            adapter = new MeaningAdapter(emptyList());
+            binding.meaningRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            binding.meaningRecyclerView.setAdapter(adapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.i("showMeaning", "error: " + e.getMessage());
+        }
+    }
+
+    // Change StarButton's state
+    public void collect_word(ImageView star) {
+        star.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if (isWordCollected(currentWord) == 1) {
                     // If ir has already been collected it, click to cancel it.
                     deleteCollectData();
-                    binding.starButton.setImageResource(R.drawable.ic_star_default);
+                    binding.starButton.setImageResource(R.drawable.star_black);
 
-                    Log.e("collect", "delete： " + is);
+                    Log.e("collect", "delete： " + isWordCollected(currentWord));
                 } else {
                     // If it hasn't been collected, click to collect it.
                     insertCollectData();
-                    binding.starButton.setImageResource(R.drawable.ic_star_pressed);
+                    binding.starButton.setImageResource(R.drawable.star_yellow);
 
-                    Log.e("collect", "collect：" + is);
+                    Log.e("collect", "collect：" + isWordCollected(currentWord));
                 }
             }
         });
-
-        adapter = new MeaningAdapter(emptyList());
-        binding.meaningRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.meaningRecyclerView.setAdapter(adapter);
     }
 
     //Insert Collect Word
@@ -134,6 +144,39 @@ public class ShowMeaning extends AppCompatActivity {
             Log.e("collect", "User not authenticated");
         }
     }
+    //Determine whether word is collected in Database
+    private int isWordCollected(final String word) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference root = db.getReference("word_collect");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userID = user.getUid();
+        root.child(userID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    boolean isCollected = dataSnapshot.hasChild(word);
+                    if (isCollected) {
+                        binding.starButton.setImageResource(R.drawable.star_yellow);
+                        is = 1;
+                        Log.d("FirebaseData", "Word '" + word + is);
+                    } else {
+                        binding.starButton.setImageResource(R.drawable.star_black);
+                        Log.d("FirebaseData", "Word '" + word + is);
+                        is = 0;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("WordListActivity", "Failed with error: " + e.getMessage());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("Read data error: " + databaseError.getMessage());
+            }
+        });
+        return is;
+    }
 
     public void getMeaning(String word) {
         setInProgress(true);
@@ -141,7 +184,7 @@ public class ShowMeaning extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Response<List<WordResult>> response = RetrofitInstance.getInstance()
+                    Response<List<WordResult2>> response = RetrofitInstance.getInstance()
                             .create(DictionaryApi.class)
                             .getMeaning(word)
                             .execute();
@@ -153,7 +196,7 @@ public class ShowMeaning extends AppCompatActivity {
                         @Override
                         public void run() {
                             setInProgress(false);
-                            List<WordResult> results = response.body();
+                            List<WordResult2> results = response.body();
                             if (results != null && !results.isEmpty()) {
                                 setUI(results.get(0));
                             }
@@ -171,11 +214,13 @@ public class ShowMeaning extends AppCompatActivity {
             }
         }).start();
     }
-    private void setUI(WordResult response) {
+
+    private void setUI(WordResult2 response) {
         binding.wordTextview.setText(response.getWord());
         binding.phoneticTextview.setText(response.getPhonetic());
         adapter.updateNewData(response.getMeanings());
     }
+
     private void setInProgress(boolean inProgress) {
         if (inProgress) {
             binding.searchBtn.setVisibility(View.INVISIBLE);
@@ -186,36 +231,5 @@ public class ShowMeaning extends AppCompatActivity {
         }
     }
 
-    //Determine whether it is collected in Database
-    private int isWordCollected(final String word) {
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference root = db.getReference("word_collect");
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userID = user.getUid();
-        root.child(userID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    boolean isCollected = dataSnapshot.hasChild(word);
-                    if (isCollected) {
-                        binding.starButton.setImageResource(R.drawable.ic_star_pressed);
-                        is = 1;
-                        Log.d("FirebaseData", "Word '" + word + is);
-                    } else {
-                        binding.starButton.setImageResource(R.drawable.ic_star_default);
-                        Log.d("FirebaseData", "Word '" + word + is);
-                        is = 0;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e("WordListActivity", "Failed with error: " + e.getMessage());
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("Read data error: " + databaseError.getMessage());
-            }
-        });
-        return is;
-    }
+
 }
